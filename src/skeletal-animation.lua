@@ -1,7 +1,6 @@
 local iqm   = require "iqm"
 local anim9 = require "anim9"
 local cpml  = require "cpml"
-local l3d   = require "love3d"
 
 local filename = "assets/cthulhu.iqm"
 local model = iqm.load(filename)
@@ -78,9 +77,8 @@ register("update", function(dt)
 	anim:update(dt)
 end)
 
-love.graphics.setBackgroundColor(25, 50, 50)
+love.graphics.setBackgroundColor(0.1, 0.2, 0.2)
 register("draw", function()
-	l3d.reset()
 	local w, h = love.graphics.getDimensions()
 
 	local m = cpml.mat4():identity()
@@ -97,15 +95,15 @@ register("draw", function()
 	shader:send("u_pose", unpack(anim.current_pose))
 	shader:send("u_light", {lightv:unpack()})
 
-	l3d.clear()
-	l3d.set_depth_test("less")
-	l3d.set_culling("back")
+	love.graphics.setDepthMode("lequal", true)
+	love.graphics.setMeshCullMode("back")
 
 	for _, buffer in ipairs(model) do
 		model.mesh:setDrawRange(buffer.first, buffer.last)
 		love.graphics.draw(model.mesh)
 	end
 
-	l3d.set_depth_test()
-	l3d.set_culling()
+	love.graphics.setDepthMode()
+	love.graphics.setMeshCullMode('none')
+	love.graphics.setShader()
 end)

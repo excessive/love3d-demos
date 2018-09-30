@@ -1,9 +1,6 @@
 -- this is just a bootstrap for all the demos, nothing interesting here.
 -- check the files in src/, instead!
 
-local l3d = require "love3d"
-l3d.import()
-
 local demos = {
 	current = 1,
 	"forward",
@@ -66,7 +63,6 @@ function love.keypressed(k)
 
 	if do_switch then
 		love.graphics.reset()
-		l3d.reset()
 		package.loaded["src."..demo] = nil
 		switch(demos[demos.current])
 		return
