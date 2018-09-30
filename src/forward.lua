@@ -1,4 +1,3 @@
-local l3d = require "love3d"
 local iqm = require "iqm"
 local cpml = require "cpml"
 
@@ -76,9 +75,6 @@ register("mousemoved", function(x, y, mx, my)
 end)
 
 register("draw", function()
-	-- clear the depth buffer
-	l3d.clear()
-
 	-- view matrix (i.e. camera transform)
 	local v = cpml.mat4()
 	v:translate(v, camera_pos)
@@ -99,8 +95,8 @@ register("draw", function()
 	})
 
 	-- enable depth and draw only front-facing polygons
-	l3d.set_depth_test("less")
-	l3d.set_culling("back")
+	love.graphics.setDepthMode("lequal", true)
+	love.graphics.setMeshCullMode("back")
 	love.graphics.setBlendMode("replace")
 
 	-- model matrix (i.e. local transform)
@@ -114,7 +110,8 @@ register("draw", function()
 	end
 
 	-- reset everything so you can draw 2D again.
-	l3d.set_depth_test()
-	l3d.set_culling()
+	love.graphics.setDepthMode()
+	love.graphics.setMeshCullMode("none")
 	love.graphics.setBlendMode("alpha")
+	love.graphics.setShader()
 end)
