@@ -1,11 +1,10 @@
-local l3d = require "love3d"
 local iqm = require "iqm"
 local cpml = require "cpml"
 
 local w, h = love.graphics.getDimensions()
 local gbuffer = {
-	l3d.new_canvas(w, h, "rgba16f", 1, true), -- color/depth
-	love.graphics.newCanvas(w, h, "rg11b10f") -- normals
+love.graphics.newCanvas(w, h, {format = 'rgba16f'}),
+love.graphics.newCanvas(w, h, {format = 'rg11b10f'}) -- normals
 }
 
 local gb_fill = love.graphics.newShader [[
@@ -25,9 +24,9 @@ vec4 position(mat4 _, vec4 vertex) {
 #endif
 
 #ifdef PIXEL
-	void effects(vec4 _col, Image _tex, vec2 _uv, vec2 _sc) {
+	void effect() {
 		// base color
-		love_Canvases[0] = gammaToLinear(_col);
+		love_Canvases[0] = gammaToLinear(VaryingColor);
 
 		// world space normals
 		love_Canvases[1] = vec4(f_normal * 0.5 + 0.5, 1.0);
@@ -98,13 +97,11 @@ end)
 
 register("draw", function()
 	-- bind the gbuffer
-	love.graphics.setCanvas(unpack(gbuffer))
+	love.graphics.setCanvas({gbuffer[1], gbuffer[2], depth=true})
 	love.graphics.clear(
-		{ love.graphics.getBackgroundColor() },
+		{love.graphics.getBackgroundColor()},
 		{ 0.0, 1.0, 0.0 }
 	)
-	l3d.clear()
-
 
 	-- view matrix (i.e. camera transform)
 	local v = cpml.mat4()
@@ -121,8 +118,9 @@ register("draw", function()
 	gb_fill:send("u_viewProj", (v*p):to_vec4s())
 
 	-- enable depth and draw only front-facing polygons
-	l3d.set_depth_test("less")
-	l3d.set_culling("back")
+	love.graphics.setDepthMode("lequal", true)
+	love.graphics.setMeshCullMode('back')
+	love.graphics.setFrontFaceWinding('cw')
 	love.graphics.setBlendMode("replace")
 
 	for _, object in ipairs(objects) do
@@ -139,9 +137,8 @@ register("draw", function()
 	end
 
 	-- reset depth so we can draw 2D again
-	l3d.set_depth_test()
-	l3d.set_culling()
-
+	love.graphics.setDepthMode()
+	love.graphics.setMeshCullMode('none')
 	love.graphics.setCanvas()
 
 	love.graphics.setShader(post)
@@ -151,6 +148,7 @@ register("draw", function()
 	})
 	post:send("s_normal", gbuffer[2])
 	love.graphics.draw(gbuffer[1])
+	love.graphics.setShader()
 
 	-- reset blend mode so you can draw things with alpha.
 	love.graphics.setBlendMode("alpha")
