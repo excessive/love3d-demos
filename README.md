@@ -10,7 +10,7 @@ Basic forward model rendering. Start here.
 ![](https://raw.githubusercontent.com/excessive/love3d-demos/master/screenshots/forward.png)
 
 ## Deferred
-Basic deferred rendering. All information needed for shading is renderd into
+Basic deferred rendering. All information needed for shading is rendered into
 buffers before combining at the end. Useful for various effects.
 
 ![](https://raw.githubusercontent.com/excessive/love3d-demos/master/screenshots/deferred.png)
