@@ -21,7 +21,7 @@ local function load_data(file)
 
 	-- Make sure it's a valid IQM file
 	if not is_buffer then
-		assert(love.filesystem.isFile(file), ("File %s not found"):format(file))
+		assert(love.filesystem.getInfo(file, "file"), string.format("File %s not found", file))
 		assert(check_magic(love.filesystem.read(file, 16)))
 	end
 
